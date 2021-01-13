@@ -1,22 +1,46 @@
-function X = sliding_goertzel(x)
-%This is a sliding Goertzel algorithm, designed to calculate the frequency
-%domain values of an array of time domain values.
-%INPUT: x - array of time-domain values
-%OUTPUT: X - F(x) time domain values
-%NOTE: This method is built for efficiency and real-time applications,
-%therefore it can be inaccurate.
+function [Z] = sliding_goertzel(z)
+%This is a comb-filter using Goertzel's algorithm to calculate frequency
+%domain values.
+%INPUT: x - array of time domain values
+%OUTPUT: y - frequency domain values
 
-%% Pre-defining variables and Goertzel-constants.
+%% Basic help variables.
+N = length(z);                      % Sliding window lenght.
+y_comb = zeros(1, length(z));       % Sliding window.
 
-N = length(x);      % window size
+%% Variables for Goertzel's algorithm.
 
-% Variables needed by the Goertzel-algorithm
-A = 2*pi*k/N;       % constant
-B = cos(A);         % constant
-C = exp(-1j*A);     % complex constant (basically a sinus)
-             
-s1 = 0;             % these need to be pre-defined
-s2 = 0;             % to avoid errors in the recursion.
+% Declaration
+k = [0:N-1]';
+w = 2*pi/N.*k;
+coeff = 2*cos(w);
+pV1 = zeros(length(k), 1);          % previousValues1
+pV2 = zeros(length(k), 1);          % previousValues2
 
-%% The preceding N-delay comb-filter.
+% Preallocating the y_gortzel matrix to avoid repeated re allocation in the
+% for loop
+y_goertzel = zeros(N,N);
 
+%% The for-loop of the transform.
+
+% Loop
+for i = 0:(length(z)-1)
+    
+    % Comb filter
+    x_comb = z;
+    if(i<N)
+        y_comb(i+1) = x_comb(i+1);
+    else
+        y_comb(i+1) = x_comb(i+1) - x_comb(i+1-N);
+    end
+    
+    % Goertzel filter
+    x_goertzel = y_comb(i+1);
+    v = x_goertzel + coeff .* pV1 - pV2;
+    y_goertzel(:,i+1) = (v - exp(-1j*w).*pV1) .* exp(1j*w);
+    pV2 = pV1;
+    pV1 = v;
+    
+end
+    Z = y_goertzel(:, N)';
+end
