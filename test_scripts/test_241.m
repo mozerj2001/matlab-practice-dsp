@@ -12,8 +12,6 @@ tic
 [A, C] = DFT_241(a, c);
 toc
 
-time_241 = toc;
-
 tic
 Aa = fft(a);
 Cc = fft(c);

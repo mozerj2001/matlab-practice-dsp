@@ -6,9 +6,10 @@ function [A, B, S, T] = testG(N)
 
 
 %% Declaring test-signals and result arrays
-s = square([0:(N-1)]);      % square test signal
-t = triang(N);              % triangle test signal
-f = cos([1:N]);             % clean sinusoid test signal
+s = square([1:N]);       % simple square function
+t = cos([1:N]);          % simple cosine function, not used in testing
+f = s .* t .* pi + 10;            % a bit more complex function, because why not
+
 
 S = zeros(1, N);            % pre-defined to avoid repeated
 T = zeros(1, N);            % allocation inside the for loop
@@ -17,11 +18,18 @@ F = zeros(1, N);
 %% Calculating DFTs with the goertzel-function and built-in FFT for comparison
 
 % for loop for the complete DFTs
+
+tic
 for i = 1:N
     S(i) = gzl(s, i, N);
-    T(i) = gzl(t, i, N);
-    F(i) = gzl(f, i, N);
 end
+toc
+
+tic
+for i = 1:N
+F(i) = gzl(f, i, N);
+end
+toc
 
 % comparison FFTs
 A = fft(s);
@@ -29,22 +37,13 @@ B = fft(t);
 C = fft(f);
 
 %% Plotting results to compare
-sq = figure;
-hold on
-plot([1:N], S, 'b');
-plot([1:N], A, 'r');
-hold off
+figure
+plot([1:1000], S, 'r', [1:1000], fft(s), 'c--');
 
-tr = figure;
-hold on
-plot([1:N], T, 'g');
-plot([1:N], B, 'r');
-hold off
+figure
+plot([1:1000], F, 'r', [1:1000], fft(f), 'c--');
 
-sinusoids = figure;
-hold on
-plot([1:N], F, 'y');
-plot([1:N], C, 'r');
-hold off
+
+
 
 end

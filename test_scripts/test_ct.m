@@ -1,4 +1,4 @@
-% This simple MATLAB script was created to test the singleFFT function.
+% This simple MATLAB script was created to test the Cooley-Tukey FFT function.
 
 % Create test signals.
 
@@ -9,12 +9,12 @@ c = a .* b .* pi + 10;            % a bit more complex function, because why not
 % Test function and measure time.
 
 tic
-A = singleFFT(a);
+A = ctFFT(a, length(a), 1);
 toc
 t_A = toc;
 
 tic
-C = singleFFT(c);
+C = ctFFT(c, length(c), 1);
 toc
 t_C = toc;
 
